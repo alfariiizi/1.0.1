@@ -47,15 +47,24 @@ int main()
 	float vertices[] = {
 		0.0f, 0.5f, 0.0f,
 		-0.5f, -0.5f, 0.0f,
-		5.0f, -5.0f, 0.0f
+		0.5f, -0.5f, 0.0f
 	};
 
 	// Vertex Input
 	// ----------------------------------------
 	unsigned int VBO; // vertex buffer objects
 	glGenBuffers( 1, &VBO );
+		unsigned int VAO; // vertex arrays object
+		glGenVertexArrays( 1, &VAO );
+		glBindVertexArray( VAO );
 	glBindBuffer( GL_ARRAY_BUFFER, VBO );
 	glBufferData( GL_ARRAY_BUFFER, sizeof( vertices ), &vertices, GL_STATIC_DRAW );
+		// set the vertex attributes pointers
+		// ----------------------------------
+		glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof( float ), ( void* )0 );
+		glEnableVertexAttribArray( 0 );
+		// ----------------------------------
+	// ----------------------------------------
 
 
 	// membuat vertex Shader dan compile vertex shader
@@ -117,7 +126,6 @@ int main()
 		std::cout << "ERROR::PROGRAM::COMPILATION::FAILED\n" << infoLog << std::endl;
 	}
 
-	glUseProgram( shaderProgram );
 	glDeleteShader( vertexShader ); // karena sudah tidak di-linking ke program shader, sehingga sudah tidak dipakai lagi
 	glDeleteShader( fragmentShader ); // karena sudah tidak di-linking ke program shader, sehingga sudah tidak dipakai lagi
 	// ----------------------
@@ -132,6 +140,9 @@ int main()
 		//render command here
 		glClearColor( 0.1f, 0.2f, 0.7f, 0.3f );
 		glClear( GL_COLOR_BUFFER_BIT );
+		glUseProgram( shaderProgram );
+		glBindVertexArray( VAO );
+		glDrawArrays( GL_TRIANGLES, 0, 3 );
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		// -------------------------------------------------------------------------------
