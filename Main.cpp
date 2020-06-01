@@ -43,6 +43,86 @@ int main()
 	glfwSetFramebufferSizeCallback( window, framebuffer_size_callback );
 
 
+	//create vertices
+	float vertices[] = {
+		0.0f, 0.5f, 0.0f,
+		-0.5f, -0.5f, 0.0f,
+		5.0f, -5.0f, 0.0f
+	};
+
+	// Vertex Input
+	// ----------------------------------------
+	unsigned int VBO; // vertex buffer objects
+	glGenBuffers( 1, &VBO );
+	glBindBuffer( GL_ARRAY_BUFFER, VBO );
+	glBufferData( GL_ARRAY_BUFFER, sizeof( vertices ), &vertices, GL_STATIC_DRAW );
+
+
+	// membuat vertex Shader dan compile vertex shader
+	// --------------------------------------------------------
+	const char* vertexShaderSource = "#version 330 core\n"
+		"layout (location = 0) in vec3 aPos;\n"
+		"void main()\n"
+		"{\n"
+		"	gl_Position = vec4( aPos.x, aPos.y, aPos.z, 1.0 );"
+		"}\0";
+	
+	unsigned int vertexShader = glCreateShader( GL_VERTEX_SHADER );
+	glShaderSource( vertexShader, 1, &vertexShaderSource, NULL );
+	glCompileShader( vertexShader );
+
+	int success;
+	char infoLog[512];
+	glGetShaderiv( vertexShader, GL_COMPILE_STATUS, &success );
+	if( !success )
+	{
+		glGetShaderInfoLog( vertexShader, sizeof( infoLog ), NULL, infoLog );
+		std::cout << "ERROR::SHADER::VERTEX::COMPILATION::FAILED\n" << infoLog << std::endl;
+	}
+	// --------------------------------------------------------
+
+
+	// membuat fragment shader dan compile fragment shader
+	// ---------------------------------------------------
+	const char* fragmentShaderSource = "#version 330 core\n"
+		"out vec4 fragColor;\n"
+		"void main()\n"
+		"{\n"
+		"	fragColor = vec4( 1.0f, 0.5f, 0.2f, 1.0f );"
+		"}\0";
+	unsigned int fragmentShader = glCreateShader( GL_FRAGMENT_SHADER );
+	glShaderSource( fragmentShader, 1, &fragmentShaderSource, NULL );
+	glCompileShader( fragmentShader );
+
+	glGetShaderiv( fragmentShader, GL_COMPILE_STATUS, &success );
+	if( !success )
+	{
+		glGetShaderInfoLog( vertexShader, sizeof( infoLog ), NULL, infoLog );
+		std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION::FAILED\n" << infoLog << std::endl;
+	}
+	// ---------------------------------------------------
+
+
+	// membuat shader Program dan menggunakannya
+	// ----------------------
+	unsigned int shaderProgram = glCreateProgram();
+	glAttachShader( shaderProgram, vertexShader );
+	glAttachShader( shaderProgram, fragmentShader );
+	glLinkProgram( shaderProgram );
+
+	glGetProgramiv( shaderProgram, GL_COMPILE_STATUS, &success );
+	if( !success )
+	{
+		glGetProgramInfoLog( shaderProgram, sizeof( infoLog ), NULL, infoLog );
+		std::cout << "ERROR::PROGRAM::COMPILATION::FAILED\n" << infoLog << std::endl;
+	}
+
+	glUseProgram( shaderProgram );
+	glDeleteShader( vertexShader ); // karena sudah tidak di-linking ke program shader, sehingga sudah tidak dipakai lagi
+	glDeleteShader( fragmentShader ); // karena sudah tidak di-linking ke program shader, sehingga sudah tidak dipakai lagi
+	// ----------------------
+
+
 	//render loop
 	while( !glfwWindowShouldClose( window ) )
 	{
