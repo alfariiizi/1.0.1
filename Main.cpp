@@ -118,32 +118,38 @@ int main()
 
 // Membuat vertex data (dan buffer(s)) dan mengatur vertex attribute
 // -----------------------------------------------------------------
+
 	//create vertices
 	float vertices[] = {
-		-0.5f, 0.5f, 0.0f,	// top left
-		0.5f, 0.5f, 0.0f,	// top right
-		-0.5f, -0.5f, 0.0f, // bottom left
-		0.5f, -0.5f, 0.0f	// bottom right
+		//first triagle
+		-0.7f, -0.3f, 0.0f,
+		-0.4f, 0.5f, 0.0f,
+		0.0f, -0.4f, 0.0f,
+
+		//second triagle
+		0.0f, -0.4f, 0.0f,
+		0.6f, 0.9f, 0.0f,
+		0.9f, 0.2f, 0.0f
 	};
 
 	//create indices
-	unsigned int indices[] = {
-		0, 1, 2,
-		1, 2, 3
-	};
+	//unsigned int indices[] = {
+	//	0, 1, 2,	// segitiga pertama
+	//	2, 3, 4		// segitiga kedua
+	//};
 
 	// Vertex shader
 	// ----------------------------------------
-	unsigned int VAO, VBO, EBO; // vertex arrays object (VAO), vertex buffer objects (VBO), element buffer object (EBO)
+	unsigned int VAO, VBO; // vertex arrays object (VAO), vertex buffer objects (VBO), // <LOL wkwk> element buffer object (EBO)
 	glGenVertexArrays( 1, &VAO );
 	glGenBuffers( 1, &VBO );
-	glGenBuffers( 1, &EBO );
+	//glGenBuffers( 1, &EBO );
 
 	glBindVertexArray( VAO ); // bind VAO terlebih dahulu kemudian . . . [lanjut bawahnya]
 	glBindBuffer( GL_ARRAY_BUFFER, VBO ); // . . . bind VBO ke VAO
 	glBufferData( GL_ARRAY_BUFFER, sizeof( vertices ), &vertices, GL_STATIC_DRAW );
-	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, EBO );
-	glBufferData( GL_ELEMENT_ARRAY_BUFFER, sizeof( indices ), indices, GL_STATIC_DRAW );
+	//glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, EBO );
+	//glBufferData( GL_ELEMENT_ARRAY_BUFFER, sizeof( indices ), indices, GL_STATIC_DRAW );
 
 	// set the vertex attributes pointers
 	// ----------------------------------
@@ -174,7 +180,7 @@ int main()
 		//draw rectangle
 		glUseProgram( shaderProgram );
 		glBindVertexArray( VAO );
-		glDrawElements( GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0 );
+		glDrawArrays( GL_TRIANGLES, 0, 6 );
 	// ------------------
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
@@ -186,7 +192,7 @@ int main()
 	// dealocate semua resources yang sudah digunakan
 	// ----------------------------------------------
 	glDeleteBuffers( 1, &VBO );
-	glDeleteBuffers( 1, &EBO );
+	//glDeleteBuffers( 1, &EBO );
 	glDeleteVertexArrays( 1, &VAO );
 	glDeleteProgram( shaderProgram );
 	// ----------------------------------------------
