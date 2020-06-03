@@ -120,49 +120,49 @@ int main()
 // -----------------------------------------------------------------
 
 	//create vertices
-	float vertices[] = {
+	float firstTriangle[] = {
 		//first triagle
 		-0.7f, -0.3f, 0.0f,
 		-0.4f, 0.5f, 0.0f,
 		0.0f, -0.4f, 0.0f,
-
+	};
+	float secondTriangle[] = {
 		//second triagle
 		0.0f, -0.4f, 0.0f,
 		0.6f, 0.9f, 0.0f,
-		0.9f, 0.2f, 0.0f
+		0.9f, -0.2f, 0.0f
 	};
-
-	//create indices
-	//unsigned int indices[] = {
-	//	0, 1, 2,	// segitiga pertama
-	//	2, 3, 4		// segitiga kedua
-	//};
 
 	// Vertex shader
 	// ----------------------------------------
-	unsigned int VAO, VBO; // vertex arrays object (VAO), vertex buffer objects (VBO), // <LOL wkwk> element buffer object (EBO)
-	glGenVertexArrays( 1, &VAO );
-	glGenBuffers( 1, &VBO );
-	//glGenBuffers( 1, &EBO );
+	unsigned int VAOs[2];
+	unsigned int VBOs[2];
+	glGenVertexArrays( 2, VAOs );
+	glGenBuffers( 2, VBOs );
 
-	glBindVertexArray( VAO ); // bind VAO terlebih dahulu kemudian . . . [lanjut bawahnya]
-	glBindBuffer( GL_ARRAY_BUFFER, VBO ); // . . . bind VBO ke VAO
-	glBufferData( GL_ARRAY_BUFFER, sizeof( vertices ), &vertices, GL_STATIC_DRAW );
-	//glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, EBO );
-	//glBufferData( GL_ELEMENT_ARRAY_BUFFER, sizeof( indices ), indices, GL_STATIC_DRAW );
-
-	// set the vertex attributes pointers
-	// ----------------------------------
+	// setup the first triangle
+	// -----------------------
+	glBindVertexArray( VAOs[0] );
+	glBindBuffer( GL_ARRAY_BUFFER, VBOs[0] ); // . . . bind VBO ke VAO
+	glBufferData( GL_ARRAY_BUFFER, sizeof( firstTriangle ), firstTriangle, GL_STATIC_DRAW );
 	glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof( float ), ( void* )0 );
-	glEnableVertexAttribArray( 0 );
-	// ----------------------------------
-
-	// karena VBO sudah ter-bind ke VAO, maka VBO yang ada di GL_ARRAY_BUFFER dapat di unbind
-	// begitu pula VAO juga dapat di unbind terlebih dahulu dari glBindVertexArray
-	// ---------------------------------------------------------------------------------------
 	glBindBuffer( GL_ARRAY_BUFFER, 0 );
-	glBindVertexArray( 0 );
-	// ---------------------------------------------------------------------------------------
+	//glBindVertexArray( 0 ); // no need to unbind at all as we directly bind a different VAO the next few lines
+	glEnableVertexAttribArray( 0 );
+	// -----------------------
+
+	// setup the second triangle
+	// -------------------------
+	glBindVertexArray( VAOs[1] );
+	glBindBuffer( GL_ARRAY_BUFFER, VBOs[1] ); // . . . bind VBO ke VAO
+	glBufferData( GL_ARRAY_BUFFER, sizeof( secondTriangle ), secondTriangle, GL_STATIC_DRAW );
+	glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof( float ), ( void* )0 );
+	glBindBuffer( GL_ARRAY_BUFFER, 0 );
+	//glBindVertexArray( 0 ); // not really necessary as well, but beware of calls that could affect VAOs while this one is bound (like binding element buffer objects, or enabling/disabling vertex attributes)
+	glEnableVertexAttribArray( 0 ); 
+	// -------------------------
+
+	// ----------------------------------
 // ----------------------------------------
 
 
@@ -177,10 +177,19 @@ int main()
 		glClearColor( 0.2f, 0.3f, 0.5f, 1.0f );
 		glClear( GL_COLOR_BUFFER_BIT );
 
-		//draw rectangle
 		glUseProgram( shaderProgram );
-		glBindVertexArray( VAO );
-		glDrawArrays( GL_TRIANGLES, 0, 6 );
+
+		// draw first triangle
+		// -------------------
+		glBindVertexArray( VAOs[0] );
+		glDrawArrays( GL_TRIANGLES, 0, 3 );
+		// -------------------
+
+		// draw second triangle
+		// --------------------
+		glBindVertexArray( VAOs[1] );
+		glDrawArrays( GL_TRIANGLES, 0, 3 );
+		// --------------------
 	// ------------------
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
@@ -191,9 +200,9 @@ int main()
 
 	// dealocate semua resources yang sudah digunakan
 	// ----------------------------------------------
-	glDeleteBuffers( 1, &VBO );
+	glDeleteBuffers( 2, VBOs );
 	//glDeleteBuffers( 1, &EBO );
-	glDeleteVertexArrays( 1, &VAO );
+	glDeleteVertexArrays( 2, VAOs );
 	glDeleteProgram( shaderProgram );
 	// ----------------------------------------------
 
