@@ -18,11 +18,17 @@ const char* vertexShaderSource = "#version 330 core\n"
 "{\n"
 "	gl_Position = vec4( aPos.x, aPos.y, aPos.z, 1.0 );"
 "}\0";
-const char* fragmentShaderSource = "#version 330 core\n"
+const char* fragmentShaderSourceOrange = "#version 330 core\n"
 "out vec4 fragColor;\n"
 "void main()\n"
 "{\n"
 "	fragColor = vec4( 1.0f, 0.5f, 0.2f, 1.0f );"
+"}\0";
+const char* fragmentShaderSourceYellow = "#version 330 core\n"
+"out vec4 fragColor;\n"
+"void main()\n"
+"{\n"
+"	fragColor = vec4( 1.0f, 0.9f, 0.1f, 1.0f );"
 "}\0";
 // -------------------------------------
 
@@ -83,11 +89,11 @@ int main()
 
 	// membuat fragment shader dan compile fragment shader
 	// ---------------------------------------------------
-	unsigned int fragmentShader = glCreateShader( GL_FRAGMENT_SHADER );
-	glShaderSource( fragmentShader, 1, &fragmentShaderSource, NULL );
-	glCompileShader( fragmentShader );
+	unsigned int fragmentShaderOrange = glCreateShader( GL_FRAGMENT_SHADER );
+	glShaderSource( fragmentShaderOrange, 1, &fragmentShaderSourceOrange, NULL );
+	glCompileShader( fragmentShaderOrange );
 
-	glGetShaderiv( fragmentShader, GL_COMPILE_STATUS, &success );
+	glGetShaderiv( fragmentShaderOrange, GL_COMPILE_STATUS, &success );
 	if( !success )
 	{
 		glGetShaderInfoLog( vertexShader, sizeof( infoLog ), NULL, infoLog );
@@ -95,23 +101,54 @@ int main()
 	}
 	// ---------------------------------------------------
 
-	// membuat shader Program dan menggunakannya
-	// -----------------------------------------
-	unsigned int shaderProgram = glCreateProgram();
-	glAttachShader( shaderProgram, vertexShader );
-	glAttachShader( shaderProgram, fragmentShader );
-	glLinkProgram( shaderProgram );
+	// membuat fragment shader dan compile fragment shader
+	// ---------------------------------------------------
+	unsigned int fragmentShaderYellow = glCreateShader( GL_FRAGMENT_SHADER );
+	glShaderSource( fragmentShaderYellow, 1, &fragmentShaderSourceYellow, NULL );
+	glCompileShader( fragmentShaderYellow );
 
-	glGetProgramiv( shaderProgram, GL_COMPILE_STATUS, &success );
+	glGetShaderiv( fragmentShaderYellow, GL_COMPILE_STATUS, &success );
 	if( !success )
 	{
-		glGetProgramInfoLog( shaderProgram, sizeof( infoLog ), NULL, infoLog );
+		glGetShaderInfoLog( vertexShader, sizeof( infoLog ), NULL, infoLog );
+		std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION::FAILED\n" << infoLog << std::endl;
+	}
+	// ---------------------------------------------------
+
+
+	// membuat shader Program dan menggunakannya
+	// -----------------------------------------
+	unsigned int shaderProgramOrange = glCreateProgram();
+	glAttachShader( shaderProgramOrange, vertexShader );
+	glAttachShader( shaderProgramOrange, fragmentShaderOrange );
+	glLinkProgram( shaderProgramOrange );
+
+	glGetProgramiv( shaderProgramOrange, GL_COMPILE_STATUS, &success );
+	if( !success )
+	{
+		glGetProgramInfoLog( shaderProgramOrange, sizeof( infoLog ), NULL, infoLog );
 		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
 	}
+	// -----------------------------------------
+
+	// membuat shader Program dan menggunakannya
+	// -----------------------------------------
+	unsigned int shaderProgramYellow = glCreateProgram();
+	glAttachShader( shaderProgramYellow, vertexShader );
+	glAttachShader( shaderProgramYellow, fragmentShaderYellow );
+	glLinkProgram( shaderProgramYellow );
+
+	glGetProgramiv( shaderProgramYellow, GL_COMPILE_STATUS, &success );
+	if( !success )
+	{
+		glGetProgramInfoLog( shaderProgramYellow, sizeof( infoLog ), NULL, infoLog );
+		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
+	}
+	// -----------------------------------------
 
 	glDeleteShader( vertexShader ); // karena sudah tidak di-linking ke program shader, sehingga sudah tidak dipakai lagi
-	glDeleteShader( fragmentShader ); // karena sudah tidak di-linking ke program shader, sehingga sudah tidak dipakai lagi
-	// -----------------------------------------
+	glDeleteShader( fragmentShaderOrange ); // karena sudah tidak di-linking ke program shader, sehingga sudah tidak dipakai lagi
+	glDeleteShader( fragmentShaderYellow ); // karena sudah tidak di-linking ke program shader, sehingga sudah tidak dipakai lagi
 
 	/* ----------------------------------------------------------------------------- */
 
@@ -177,16 +214,16 @@ int main()
 		glClearColor( 0.2f, 0.3f, 0.5f, 1.0f );
 		glClear( GL_COLOR_BUFFER_BIT );
 
-		glUseProgram( shaderProgram );
-
-		// draw first triangle
+		// draw first triangle dengan warna orange
 		// -------------------
+		glUseProgram( shaderProgramOrange );
 		glBindVertexArray( VAOs[0] );
 		glDrawArrays( GL_TRIANGLES, 0, 3 );
 		// -------------------
 
-		// draw second triangle
+		// draw second triangle dengan warna kuning
 		// --------------------
+		glUseProgram( shaderProgramYellow );
 		glBindVertexArray( VAOs[1] );
 		glDrawArrays( GL_TRIANGLES, 0, 3 );
 		// --------------------
@@ -203,7 +240,8 @@ int main()
 	glDeleteBuffers( 2, VBOs );
 	//glDeleteBuffers( 1, &EBO );
 	glDeleteVertexArrays( 2, VAOs );
-	glDeleteProgram( shaderProgram );
+	glDeleteProgram( shaderProgramOrange );
+	glDeleteProgram( shaderProgramYellow );
 	// ----------------------------------------------
 
 	glfwTerminate();
